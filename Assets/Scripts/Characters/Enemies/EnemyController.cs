@@ -8,14 +8,29 @@ public class EnemyController : MonoBehaviour
     protected EnemyMovement movement;
     protected TargetDetection targetDetection;
     protected Animator anim;
-    //private EnemyAttack attack;
+    protected Enemy enemy;
+    protected EnemyAnimationEvents animationEvents;
+
 
     protected virtual void Awake()
     {
         movement = GetComponent<EnemyMovement>();
         targetDetection = GetComponent<TargetDetection>();
         anim = GetComponentInChildren<Animator>();
-        //  attack = GetComponent<EnemyAttack>();
+        enemy = GetComponent<Enemy>();
+    }
+    protected virtual void OnEnable()
+    {
+        enemy.OnTakeDamage += TakeDamage;
+        enemy.OnDie += Die;
+        animationEvents.OnDieFinished += DieFinished;
+    }
+
+    protected virtual void OnDisable()
+    {
+        enemy.OnTakeDamage -= TakeDamage;
+        enemy.OnDie -= Die;
+        animationEvents.OnDieFinished += DieFinished;
     }
 
     protected virtual void Update()
@@ -26,6 +41,23 @@ public class EnemyController : MonoBehaviour
     public void DisableEnemy()
     {
         movement.Stop();
-        //attack.Disable();
+        enemy.GetComponent<Collider2D>().enabled = false;
+        enemy.rb.bodyType = RigidbodyType2D.Static;
+    }
+
+    public virtual void Die()
+    {
+        anim.SetBool("die", true);
+        DisableEnemy();
+    }
+
+    private void DieFinished()
+    {
+        Destroy(gameObject);
+    }
+
+    public virtual void TakeDamage(int damage)
+    {
+
     }
 }

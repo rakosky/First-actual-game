@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class TrackingProjectileController : ProjectileController
 {
-    private Transform target;
+    private Character target;
 
-    public override void Init(float speed, float maxRange, Vector2 direction, Vector2 startPosition)
+    public override void Init(ProjectileAbility ability, GameObject user, Vector2 direction, Vector2 startPosition)
     {
-        base.Init(speed, maxRange, direction, startPosition);
+        base.Init(ability, user, direction, startPosition);
 
-        target = FindClosestEnemy();
-        if (target != null)
-            Debug.Log("target locked");
+        target = FindClosestTarget();
+        if(target != null) 
+            target.OnDie += ClearTarget;
     }
 
     protected override void Update()
@@ -20,26 +20,20 @@ public class TrackingProjectileController : ProjectileController
         if (target == null)
             return;
 
-        // Calculate the direction vector to the target
-        Vector3 direction = (target.position - transform.position).normalized;
-
-        // Calculate the movement step based on speed and time
-        Vector3 movement = direction * speed * Time.deltaTime;
-
-        // Move the projectile towards the target
-        transform.position += movement;
+        Vector3 direction = (target.transform.position - transform.position).normalized;
+        transform.position += direction * speed * Time.deltaTime;
     }
 
-    private Transform FindClosestEnemy()
+    private Character FindClosestTarget()
     {
-        float detectionRange = 100f; // Range of detection
+        float detectionRange = maxRange; // Range of detection
         float detectionAngle = 85f; // Cone angle in degrees
-        LayerMask enemyLayer = LayerMask.GetMask("Enemy"); // Adjust to your enemy layer
+        LayerMask enemyLayer = LayerMask.GetMask("Enemy");
 
         // Get all colliders in the detection range
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectionRange, enemyLayer);
 
-        Transform closestEnemy = null;
+        Character closestTarget = null;
         float closestDistance = Mathf.Infinity;
 
         foreach (Collider2D hit in hits)
@@ -56,11 +50,18 @@ public class TrackingProjectileController : ProjectileController
                 if (distanceToTarget < closestDistance)
                 {
                     closestDistance = distanceToTarget;
-                    closestEnemy = hit.transform;
+                    closestTarget = hit.GetComponent<Character>();
                 }
             }
         }
 
-        return closestEnemy;
+        return closestTarget;
+    }
+
+    private void ClearTarget()
+    {
+        Debug.Log("clearin targ");
+        if (target != null)
+            target = null;
     }
 }

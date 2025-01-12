@@ -12,6 +12,7 @@ public class EnemyAnimationEvents : MonoBehaviour
 
     public event Action OnAttack1Hit;
     public event Action OnAttack1Finished;
+    public event Action OnDieFinished;
 
     private void OnAttack1Trigger()
     {
@@ -21,6 +22,11 @@ public class EnemyAnimationEvents : MonoBehaviour
     private void OnAttack1FinishedTrigger()
     {
         OnAttack1Finished?.Invoke();
+    }
+
+    private void OnDieFinish()
+    {
+        OnDieFinished?.Invoke();
     }
 
 }

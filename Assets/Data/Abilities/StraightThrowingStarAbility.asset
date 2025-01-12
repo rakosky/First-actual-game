@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityName: 
   cooldown: 0
+  hitCount: 6
+  damagePerHit: 50
   icon: {fileID: 0}
   projectilePrefab: {fileID: 8826861569055111388, guid: 4faa169fdb5c70f4081aab08d3ccaf9d, type: 3}
   projectileSpeed: 20
   projectileRange: 50
-  projectileCount: 6
   projectileFireDelay: 0.07
   projectileGravity: 0

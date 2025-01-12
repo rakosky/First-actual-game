@@ -41,12 +41,21 @@ public class CharacterStats : MonoBehaviour
     public int shockedDamage;
     public event System.Action OnHealthChanged;
 
-    protected virtual void Start()
+    private void Awake()
     {
         character = GetComponent<Character>();
+
         //entityFx = GetComponent<EntityFX>();
         currentHealth = CalculateMaxHealth();
+    }
 
+    protected virtual void Start()
+    {
+
+    }
+
+    private void OnEnable()
+    {
         //Inventory.instance.onItemEquipped += ApplyEquipModifiers;
         //Inventory.instance.onItemUnequipped += RemoveEquipModifiers;
     }
@@ -95,9 +104,10 @@ public class CharacterStats : MonoBehaviour
         UpdateHealth(-damage);
         if (currentHealth <= 0)
         {
-            Die();
+            character.Die();
             return;
         }
+        character.TakeDamage(damage);
         //entityFx.StartCoroutine(entityFx.FlashFx());
 
         //if (damage > 0 && canPlayDamageFx) //TODO this would be knockback calculation
@@ -160,39 +170,8 @@ public class CharacterStats : MonoBehaviour
         else if (prominentAilment == AilmentType.Shock)
             target.shockedDamage = Mathf.RoundToInt(lightningDamage * 8f);
 
-        //if (prominentAilment != AilmentType.None)
-            //target.ApplyAilment(prominentAilment);
-
         target.TakeDamage(Mathf.RoundToInt(totalDamage));
     }
-
-    //public void ApplyAilment(AilmentType ailment)
-    //{
-    //    // refresh ailment timer regardless
-    //    ailmentTimer = ailmentDuration;
-
-    //    if (ailment == AilmentType.Ignite)
-    //    {
-    //        StartCoroutine(entityFx.BlinkColorFx(entityFx.ignitedColor, ailmentTimer, .5f));
-    //        igniteDamageTimer = igniteDamageInterval;
-    //    }
-    //    else if (ailment == AilmentType.Chill)
-    //    {
-    //        entity.SlowByPercentage(.25f, ailmentDuration);
-    //        if (this.currentAilment != AilmentType.Chill)
-    //            StartCoroutine(entityFx.BlinkColorFx(entityFx.chilledColor, ailmentTimer, .5f));
-    //    }
-    //    else if (ailment == AilmentType.Shock)
-    //    {
-    //        StartCoroutine(entityFx.BlinkColorFx(entityFx.shockedColor, ailmentTimer));
-    //        if (this.currentAilment == AilmentType.Shock)// re-shock enemy applys lightning bolt that seeks nearest target 
-    //        {
-    //            var lightningStrike = Instantiate(lightningStrikePrefab, transform.position, Quaternion.identity);
-    //            lightningStrike.GetComponent<LightningStrikeController>().Setup(GetComponent<Enemy>(), shockedDamage);
-    //        }
-    //    }
-    //    this.currentAilment = ailment;
-    //}
 
     #region stat calcs
     public int CalculateMaxHealth()
@@ -262,9 +241,4 @@ public class CharacterStats : MonoBehaviour
     }
     #endregion
 
-
-    protected virtual void Die()
-    {
-        character.Die();
-    }
 }

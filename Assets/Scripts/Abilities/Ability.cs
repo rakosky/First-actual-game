@@ -4,6 +4,10 @@ public abstract class Ability : ScriptableObject
 {
     public string abilityName;
     public float cooldown;
+
+    public int hitCount;
+    public int damagePerHit;
+
     public Sprite icon;
 
     protected Vector2 usedPosition;

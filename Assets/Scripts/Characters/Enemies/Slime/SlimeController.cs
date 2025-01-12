@@ -1,30 +1,33 @@
 ﻿using Assets.Scripts.Stats;
+using System.Collections;
+using System.Threading;
 using UnityEngine;
 
 public class SlimeController : EnemyController
 {
-    public enum State { Idle, Roaming, Persuing, Attacking }
+    public enum State { Idle, Roaming, Persuing, Attacking, Hit, Dying }
     private State currentState = State.Idle;
 
-    private Enemy enemy;
-    private EnemyAnimationEvents animationEvents;
+    private float hitTimer = 0;
 
 
     protected override void Awake()
     {
         base.Awake();
-        enemy = GetComponent<Enemy>();
         animationEvents = GetComponentInChildren<EnemyAnimationEvents>();
     }
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
+
         animationEvents.OnAttack1Hit += OnAttack1Hit;
         animationEvents.OnAttack1Finished += OnAttack1Finished;
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         animationEvents.OnAttack1Hit -= OnAttack1Hit;
         animationEvents.OnAttack1Finished -= OnAttack1Finished;
     }
@@ -38,6 +41,8 @@ public class SlimeController : EnemyController
             case State.Idle:
                 anim.SetBool("move", false);
                 anim.SetBool("idle", true);
+                anim.SetBool("hit", false);
+
                 if (targetDetection.TargetDetected())
                     currentState = State.Persuing;
                 else if (!movement.IsRomeOnCooldown)
@@ -48,6 +53,8 @@ public class SlimeController : EnemyController
             case State.Roaming:
                 anim.SetBool("move", true);
                 anim.SetBool("idle", false);
+                anim.SetBool("hit", false);
+
                 movement.MoveToRoamPosition();
                 if (targetDetection.TargetDetected())
                     currentState = State.Persuing;
@@ -59,6 +66,8 @@ public class SlimeController : EnemyController
             case State.Persuing:
                 anim.SetBool("idle", false);
                 anim.SetBool("move", true);
+                anim.SetBool("hit", false);
+
                 //impl max chase duration
 
                 if (targetDetection.TargetInAttackRange())
@@ -75,6 +84,28 @@ public class SlimeController : EnemyController
                 anim.SetBool("idle", false);
                 anim.SetBool("move", false);
                 anim.SetBool("attack1", true);
+                anim.SetBool("hit", false);
+
+                break;
+
+            case State.Hit:
+                movement.Stop();
+                anim.SetBool("idle", false);
+                anim.SetBool("move", false);
+                anim.SetBool("attack1", false);
+                anim.SetBool("hit", true);
+                if ((hitTimer -= Time.deltaTime) <= 0)
+                    currentState = State.Idle;
+                
+                break;
+
+            case State.Dying:
+                anim.SetBool("idle", false);
+                anim.SetBool("move", false);
+                anim.SetBool("attack1", false);
+                anim.SetBool("hit", false);
+                anim.SetBool("die", true);
+
                 break;
         }
     }
@@ -89,5 +120,13 @@ public class SlimeController : EnemyController
     {
         anim.SetBool("attack1", false);
         currentState = State.Persuing;
+    }
+
+    public override void TakeDamage(int damage)
+    {
+        base.TakeDamage(damage);
+
+        currentState = State.Hit;
+        hitTimer = .5f;
     }
 }

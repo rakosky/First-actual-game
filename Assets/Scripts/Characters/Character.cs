@@ -16,6 +16,8 @@ public class Character : MonoBehaviour
     public int facingDirection = 1;
     public event Action OnFlipped;
 
+    public event Action<int> OnTakeDamage;
+    public event Action OnDie;
 
 
     protected virtual void Update()
@@ -75,10 +77,14 @@ public class Character : MonoBehaviour
             Flip();
         }
     }
-
+    public virtual void TakeDamage(int damage)
+    {
+        OnTakeDamage?.Invoke(damage);
+    }
     public virtual void Die()
     {
         Debug.Log(GetType() + " died");
+        OnDie?.Invoke();
     }
 
 }

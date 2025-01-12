@@ -14,11 +14,11 @@ public class StraightProjectileAbility : ProjectileAbility
 
     private IEnumerator FireProjectiles(GameObject user)
     {
-        for (int i = 0; i < projectileCount; i++)
+        for (int i = 0; i < hitCount; i++)
         {
             GameObject projectile = Instantiate(projectilePrefab, usedPosition, Quaternion.identity);
             var controller = projectile.AddComponent<ProjectileController>();
-            controller.Init(speed: projectileSpeed, projectileRange, usedDirection, usedPosition);
+            controller.Init(this, user, usedDirection, usedPosition);
             yield return new WaitForSeconds(projectileFireDelay);
         }
     }
